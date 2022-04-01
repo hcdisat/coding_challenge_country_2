@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">CountriesCodeChallenge</string>
+    <string name="dummy_name_region_text">United States of America, NA</string>
+    <string name="dummy_country_code">US</string>
+    <string name="dummy_capital_text">Washington, D.C</string>
 </resources>
