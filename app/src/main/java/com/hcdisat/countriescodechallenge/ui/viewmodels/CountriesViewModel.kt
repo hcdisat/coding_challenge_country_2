@@ -9,6 +9,7 @@ import com.hcdisat.countriescodechallenge.network.ICountryRepository
 import com.hcdisat.countriescodechallenge.ui.CountryState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,20 +23,20 @@ class CountriesViewModel @Inject constructor(
         MutableLiveData(CountryState.LOADING)
     val countryState: LiveData<CountryState> get() = _countryState
 
-    init {
-        viewModelScope.launch {
-           countryRepository.countryFlow.collect {
-               _countryState.postValue(it)
-           }
-        }
-    }
+    private var _errorMessage: String = ""
+    var errorMessage: String
+    get() = _errorMessage
+    set(value) { _errorMessage = value }
 
     /**
      * Executes and collects flow of [CountryState]
      */
     fun getCountries() {
+        _countryState.value = CountryState.LOADING
         viewModelScope.launch(ioDispatcher) {
-            countryRepository.getCountries(this)
+            countryRepository.getCountries().collect {
+                _countryState.postValue(it)
+            }
         }
     }
 }

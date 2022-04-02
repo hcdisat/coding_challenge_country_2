@@ -3,4 +3,6 @@
     <string name="dummy_name_region_text">United States of America, NA</string>
     <string name="dummy_country_code">US</string>
     <string name="dummy_capital_text">Washington, D.C</string>
+    <string name="error_message_text">An error occrred while making the request</string>
+    <string name="cd">Some Content</string>
 </resources>

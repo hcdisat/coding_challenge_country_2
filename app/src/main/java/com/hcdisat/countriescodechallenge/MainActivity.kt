@@ -3,11 +3,13 @@ package com.hcdisat.countriescodechallenge
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hcdisat.countriescodechallenge.adapters.CountryAdapter
 import com.hcdisat.countriescodechallenge.databinding.ActivityMainBinding
 import com.hcdisat.countriescodechallenge.ui.CountryState
+import com.hcdisat.countriescodechallenge.ui.ErrorDialogFragment
 import com.hcdisat.countriescodechallenge.ui.viewmodels.CountriesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,11 +28,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleState(countryState: CountryState) {
         when(countryState) {
-            is CountryState.LOADING -> {}
+            is CountryState.LOADING -> showHideList(false)
+
             is CountryState.ERROR -> {
-                Log.e("TAG", countryState.throwable.localizedMessage ?: "")
+                countryViewModel.errorMessage = countryState.throwable.localizedMessage!!
+                ErrorDialogFragment.newErrorDialogBinding()
+                    .show(supportFragmentManager, ErrorDialogFragment.TAG)
+                showHideList(true)
             }
-            is CountryState.SUCCESS -> countryAdapter.setCountries(countryState.countries)
+
+            is CountryState.SUCCESS -> {
+                countryAdapter.setCountries(countryState.countries)
+                showHideList(true)
+            }
         }
     }
 
@@ -43,6 +53,16 @@ class MainActivity : AppCompatActivity() {
             )
             adapter = countryAdapter
         }
+    }
+
+    private fun showHideList(shouldShow: Boolean) {
+        if (shouldShow) {
+            binding.loadingBar.visibility = View.GONE
+            binding.countryList.visibility = View.VISIBLE
+            return
+        }
+        binding.loadingBar.visibility = View.VISIBLE
+        binding.countryList.visibility = View.GONE
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

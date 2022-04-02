@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 interface ICountryRepository {
     val countryFlow: StateFlow<CountryState>
-    suspend fun getCountries(coroutineScope: CoroutineScope)
+    fun getCountries(): Flow<CountryState>
 }
 
 /**
@@ -29,20 +29,18 @@ class CountryRepository @Inject constructor(
     /**
      * emits [Flow] of [CountryState]
      */
-    override suspend fun getCountries(coroutineScope: CoroutineScope) {
-        coroutineScope.launch {
-            try {
-                val response = countryService.getCountries()
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        _countryFlow.value = CountryState.SUCCESS(it)
-                    } ?: throw Exception()
-                } else {
-                    throw Exception()
-                }
-            } catch (e: Exception) {
-                _countryFlow.value = CountryState.ERROR(e)
+    override fun getCountries(): Flow<CountryState> = flow {
+        try {
+            val response = countryService.getCountries()
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    emit(CountryState.SUCCESS(it))
+                } ?: throw Exception()
+            } else {
+                throw Exception()
             }
+        } catch (e: Exception) {
+            emit(CountryState.ERROR(e))
         }
     }
 
